@@ -1,26 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+import { Grid, GridColumn as Column } from '@progress/kendo-react-grid';
+import { ProductsLoader } from './components/Product_loader/Product_loader';
+import { Product } from './interfaces/product.interface.js';
+import '@progress/kendo-theme-default/dist/all.css';
+
+
+
+
+
+class App extends React.Component<{},{}> {
+
+ state = {
+      product: { data: [], total: 0, },
+      dataState: { take: 10, skip: 0 }
+      };
+
+  dataStateChange = (e: any) => {
+    this.setState({
+      ...this.state,
+      dataState: e.dataState
+    });
+  }
+
+  dataRecieved = (products: Product) => {
+    this.setState({
+      ...this.state,
+      product: {data: products.data, total: products.total}
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <Grid
+          sortable={true}
+          pageable={true}
+          {...this.state.dataState}
+          {...this.state.product}
+          onDataStateChange={this.dataStateChange}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+          <Column field="ProductID" filter="numeric" title="Id" />
+          <Column field="ProductName" title="Name" />
+          <Column field="UnitPrice" filter="numeric" format="{0:c}" title="Price" />
+          <Column field="UnitsInStock" filter="numeric" title="In stock" />
+        </Grid>
+
+        <ProductsLoader
+                    dataState={this.state.dataState}
+                    onDataRecieved={this.dataRecieved}
+                />
+      </div>
+    );
+  }
 }
 
-export default App;
+export default App
